@@ -1,6 +1,6 @@
 {
     "name": "rgbyuv",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "RGB to YUV 4:2:0 converter",
     "filters":["rgb2yuv"],
     "help": "This filter converts packed RGB frames to planar YUV 4:2:0 so that an RGB-producing decoder can feed a video encoder.",
@@ -13,7 +13,7 @@
     },
     "extension":{
     },
-    "using": ["solver_minimal_1", "solver_1"],
+    "using": ["mm_solver_minimal_1.0.1", "mm_solver_1.0.1"],
     "patents": {
         "status": "royalty-free",
         "note": "colour conversion",
