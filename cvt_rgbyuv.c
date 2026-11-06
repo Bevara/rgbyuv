@@ -187,15 +187,23 @@ static const GF_FilterCapability RGBYUVCaps[] =
 		CAP_UINT(GF_CAPS_INPUT_OUTPUT, GF_PROP_PID_STREAM_TYPE, GF_STREAM_VISUAL),
 		CAP_UINT(GF_CAPS_INPUT_OUTPUT, GF_PROP_PID_CODECID, GF_CODECID_RAW),
 		/* RECONFIG is what lets the session load this filter by itself to
-		 * bridge two ends that disagree on the pixel format. */
-		{GF_CAPFLAG_IN_BUNDLE | GF_CAPFLAG_INPUT | GF_CAPFLAG_RECONFIG,
-		 GF_PROP_PID_PIXFMT, {GF_PROP_UINT, {.uint = GF_PIXEL_RGB}}, NULL, 0},
-		{GF_CAPFLAG_IN_BUNDLE | GF_CAPFLAG_INPUT | GF_CAPFLAG_RECONFIG,
-		 GF_PROP_PID_PIXFMT, {GF_PROP_UINT, {.uint = GF_PIXEL_RGBA}}, NULL, 0},
-		{GF_CAPFLAG_IN_BUNDLE | GF_CAPFLAG_INPUT | GF_CAPFLAG_RECONFIG,
-		 GF_PROP_PID_PIXFMT, {GF_PROP_UINT, {.uint = GF_PIXEL_BGR}}, NULL, 0},
-		{GF_CAPFLAG_IN_BUNDLE | GF_CAPFLAG_OUTPUT | GF_CAPFLAG_RECONFIG,
-		 GF_PROP_PID_PIXFMT, {GF_PROP_UINT, {.uint = GF_PIXEL_YUV}}, NULL, 0},
+		 * bridge two ends that disagree on the pixel format.
+		 *
+		 * Field order follows GF_FilterCapability and CAP_UINT in
+		 * filters.h - { code, val, name, flags } - with the flags LAST.
+		 * They used to be written first here, which the compiler reported
+		 * as "excess elements in union initializer" and which left these
+		 * four entries meaningless: the session could not see that this
+		 * filter converts, and reported "No suitable filter to adapt caps
+		 * between pid ... in filter jpegdec to filter wcenc". */
+		{GF_PROP_PID_PIXFMT, {GF_PROP_UINT, {.uint = GF_PIXEL_RGB}}, NULL,
+		 GF_CAPFLAG_IN_BUNDLE | GF_CAPFLAG_INPUT | GF_CAPFLAG_RECONFIG},
+		{GF_PROP_PID_PIXFMT, {GF_PROP_UINT, {.uint = GF_PIXEL_RGBA}}, NULL,
+		 GF_CAPFLAG_IN_BUNDLE | GF_CAPFLAG_INPUT | GF_CAPFLAG_RECONFIG},
+		{GF_PROP_PID_PIXFMT, {GF_PROP_UINT, {.uint = GF_PIXEL_BGR}}, NULL,
+		 GF_CAPFLAG_IN_BUNDLE | GF_CAPFLAG_INPUT | GF_CAPFLAG_RECONFIG},
+		{GF_PROP_PID_PIXFMT, {GF_PROP_UINT, {.uint = GF_PIXEL_YUV}}, NULL,
+		 GF_CAPFLAG_IN_BUNDLE | GF_CAPFLAG_OUTPUT | GF_CAPFLAG_RECONFIG},
 };
 
 GF_FilterRegister RGBYUVRegister = {
