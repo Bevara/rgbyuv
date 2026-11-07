@@ -96,6 +96,45 @@ static GF_Err rgbyuv_configure_pid(GF_Filter *filter, GF_FilterPid *pid, Bool is
 	return GF_OK;
 }
 
+/* Lets the session pick this filter when a downstream filter negotiates a
+ * pixel format rather than declaring one in its capabilities.
+ *
+ * Both routes end up loading rgb2yuv, but they are resolved by different
+ * code. An encoder that declares GF_PIXEL_YUV as an ordinary input capability
+ * (encx264) gets the converter inserted during normal link resolution, which
+ * only reads capabilities. An encoder that instead accepts the PID and then
+ * calls gf_filter_pid_negotiate_property (wcenc, which has to, since its
+ * supported formats cannot be expressed as capabilities - see the note on
+ * WCENC_CAP_PIXFMT in enc_webcodec.c) sends the session down the adaptation
+ * path, and that path only considers filters implementing reconfigure_output
+ * (filter_pid.c: "we only want reconfigurable output filters"). Without this
+ * callback the adaptation Dijkstra ran "on 1 nodes 0 edges" and Motion JPEG
+ * was dropped with "No suitable filter to adapt caps between pid ... in
+ * filter jpegdec to filter wcenc".
+ *
+ * There is nothing to reconfigure: YUV 4:2:0 is the only format this filter
+ * produces. So the callback just confirms that what is being asked for is
+ * what is already on the output, and refuses anything else rather than
+ * silently sending the wrong layout. */
+static GF_Err rgbyuv_reconfigure_output(GF_Filter *filter, GF_FilterPid *pid)
+{
+	const GF_PropertyValue *p;
+	GF_RGBYUVCtx *ctx = (GF_RGBYUVCtx *)gf_filter_get_udta(filter);
+
+	if (ctx->opid != pid)
+		return GF_BAD_PARAM;
+
+	p = gf_filter_pid_caps_query(pid, GF_PROP_PID_PIXFMT);
+	if (p && (p->value.uint != GF_PIXEL_YUV))
+		return GF_NOT_SUPPORTED;
+
+	p = gf_filter_pid_caps_query(pid, GF_PROP_PID_CODECID);
+	if (p && (p->value.uint != GF_CODECID_RAW))
+		return GF_NOT_SUPPORTED;
+
+	return GF_OK;
+}
+
 #define RGBYUV_CLIP(_v) ((u8)(((_v) < 0) ? 0 : (((_v) > 255) ? 255 : (_v))))
 
 static GF_Err rgbyuv_process(GF_Filter *filter)
@@ -213,6 +252,7 @@ GF_FilterRegister RGBYUVRegister = {
 			.private_size = sizeof(GF_RGBYUVCtx),
 	SETCAPS(RGBYUVCaps),
 	.configure_pid = rgbyuv_configure_pid,
+	.reconfigure_output = rgbyuv_reconfigure_output,
 	.process = rgbyuv_process,
 	.finalize = rgbyuv_finalize,
 };
