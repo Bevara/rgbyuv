@@ -2,18 +2,26 @@
     "name": "rgbyuv",
     "version": "1.0.5",
     "description": "RGB to YUV 4:2:0 converter",
-    "filters":["rgb2yuv"],
+    "filters": [
+        "rgb2yuv"
+    ],
     "help": "This filter converts packed RGB frames to planar YUV 4:2:0 so that an RGB-producing decoder can feed a video encoder.",
     "support": [
         "video"
     ],
-    "sources":"https://bevara.ddns.net/sources/rgbyuv.accessor",
-    "filter_source":{
-        "rgb2yuv" : "cvt_rgbyuv.c"
+    "sources": "https://bevara.ddns.net/sources/rgbyuv.accessor",
+    "filter_source": {
+        "rgb2yuv": "cvt_rgbyuv.c"
     },
-    "extension":{
-    },
-    "using": ["mm_solver_minimal_1.0.1", "mm_solver_1.0.1", "mm_solver_1.0.2", "mm_solver_1.0.3", "mm_solver_1.0.4"],
+    "extension": {},
+    "using": [
+        "mm_solver_minimal_1.0.1",
+        "mm_solver_1.0.1",
+        "mm_solver_1.0.2",
+        "mm_solver_1.0.3",
+        "mm_solver_1.0.4",
+        "mm_solver_1.0.5"
+    ],
     "patents": {
         "status": "royalty-free",
         "note": "colour conversion",
